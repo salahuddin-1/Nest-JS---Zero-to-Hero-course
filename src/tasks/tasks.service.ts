@@ -15,7 +15,7 @@ export class TasksService {
     return this.tasks.find((task) => task.id === id);
   }
 
-  deleteTask(id: string): Task {
+  deleteTask(id: string): void {
     const selectedTask: Task = this.getTaskById(id);
 
     this.tasks.forEach((task, index) => {
@@ -24,7 +24,7 @@ export class TasksService {
       }
     });
 
-    return selectedTask;
+    // return selectedTask;
   }
 
   createTask(createTaskDto: CreateTaskDto): Task {
@@ -40,5 +40,13 @@ export class TasksService {
     this.tasks.push(task);
 
     return task;
+  }
+
+  updateTaskStatus(id: string, status: TaskStatus): Task {
+    const selectedTask: Task = this.getTaskById(id);
+
+    selectedTask.status = status;
+
+    return selectedTask;
   }
 }
