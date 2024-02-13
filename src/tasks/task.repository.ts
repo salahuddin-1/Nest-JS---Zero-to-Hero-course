@@ -3,11 +3,43 @@ import { Task } from './task.entity';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskStatus } from './task-status.enum';
+import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 
 @Injectable()
 export class TaskRepository extends Repository<Task> {
   constructor(private readonly entityManager: EntityManager) {
     super(Task, entityManager);
+  }
+
+  async getTasks(filterDto: GetTasksFilterDto): Promise<Task[]> {
+    const { status, search } = filterDto;
+
+    const query = this.createQueryBuilder('task');
+
+    // The Reason we are using andWhere instead of where is because
+    // we want to include both the status and search in the query
+    // if we use where then it will only include the last condition (it will overwrite the previous condition)
+
+    if (status) {
+      // Where task.status is defined in the createQueryBuilder('task')
+      // :status is the name of the attribute in database, : means it is a placeholder
+      // { status } is the value of the placeholder passed by the user
+      query.andWhere('task.status = :status', { status });
+    }
+
+    if (search) {
+      //  { search: `%${search}%` } - is used to search for a string in the provided string
+      // { search } (Just like above for status) - is used to search for a string that is exactly equal to the provided string
+      query.andWhere(
+        '(task.title LIKE :search OR task.description LIKE :search)',
+        { search: `%${search}%` },
+        // { search },
+      );
+    }
+
+    const tasks = await query.getMany();
+
+    return tasks;
   }
 
   async getTaskById(id: number): Promise<Task> {
