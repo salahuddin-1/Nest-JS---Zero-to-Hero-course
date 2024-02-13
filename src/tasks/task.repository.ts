@@ -10,6 +10,16 @@ export class TaskRepository extends Repository<Task> {
     super(Task, entityManager);
   }
 
+  async getTaskById(id: number): Promise<Task> {
+    const task: Task = await this.findOneBy({ id: id });
+
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+
+    return task;
+  }
+
   async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
     const { title, description } = createTaskDto;
 
@@ -45,13 +55,7 @@ export class TaskRepository extends Repository<Task> {
   }
 
   async updateTaskStatus(id: number, status: TaskStatus): Promise<Task> {
-    const task: Task = await this.findOneBy({ id: id });
-
-    if (!task) {
-      throw new NotFoundException(
-        `Unable to update. Task with ID ${id} not found`,
-      );
-    }
+    const task: Task = await this.getTaskById(id);
 
     task.status = status;
 

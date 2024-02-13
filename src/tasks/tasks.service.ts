@@ -18,13 +18,7 @@ export class TasksService {
   }
 
   async getTaskById(id: number): Promise<Task> {
-    const task = await this.taskRepository.findOneBy({ id: id });
-
-    if (!task) {
-      throw new NotFoundException(`Task with ID ${id} not found`);
-    }
-
-    return task;
+    return this.taskRepository.getTaskById(id);
   }
 
   deleteTask(id: number): Promise<void> {
