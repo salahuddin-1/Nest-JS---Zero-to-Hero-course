@@ -7,7 +7,10 @@ import { Task } from './task.entity';
 
 @Injectable()
 export class TasksService {
-  constructor(private taskRepository: TaskRepository) {}
+  constructor(
+    @InjectRepository(TaskRepository)
+    private taskRepository: TaskRepository,
+  ) {}
   // getAllTasks(): Task[] {
   //   return this.tasks;
   // }
@@ -39,7 +42,7 @@ export class TasksService {
   // }
 
   async getTaskById(id: number): Promise<Task> {
-    const task = await this.taskRepository.findOne({ where: { id } });
+    const task = await this.taskRepository.findOneBy({ id: id });
     this.taskRepository.myFunction();
 
     if (!task) {
@@ -58,17 +61,11 @@ export class TasksService {
   //   });
   //   // return selectedTask;
   // }
-  // createTask(createTaskDto: CreateTaskDto): Task {
-  //   const { title, description } = createTaskDto;
-  //   const task: Task = {
-  //     id: uuid.v1(),
-  //     title: title,
-  //     description: description,
-  //     status: TaskStatus.OPEN,
-  //   };
-  //   this.tasks.push(task);
-  //   return task;
-  // }
+
+  createTask(createTaskDto: CreateTaskDto): Promise<Task> {
+    return this.taskRepository.createTask(createTaskDto);
+  }
+
   // updateTaskStatus(id: string, status: TaskStatus): Task {
   //   const selectedTask: Task = this.getTaskById(id);
   //   selectedTask.status = status;
