@@ -1,6 +1,11 @@
 import { DeleteResult, EntityManager, Repository } from 'typeorm';
 import { Task } from './task.entity';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskStatus } from './task-status.enum';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
@@ -11,6 +16,8 @@ export class TaskRepository extends Repository<Task> {
   constructor(private readonly entityManager: EntityManager) {
     super(Task, entityManager);
   }
+
+  private logger = new Logger('TaskRepository');
 
   async getTasks(filterDto: GetTasksFilterDto, user: User): Promise<Task[]> {
     const { status, search } = filterDto;
@@ -40,9 +47,20 @@ export class TaskRepository extends Repository<Task> {
       );
     }
 
-    const tasks = await query.getMany();
+    try {
+      const tasks = await query.getMany();
 
-    return tasks;
+      return tasks;
+    } catch (error) {
+      this.logger.error(
+        `Failed to get tasks for user "${
+          user.username
+        }". DTO: ${JSON.stringify(filterDto)}`,
+        error.stack,
+      );
+
+      throw new InternalServerErrorException();
+    }
   }
 
   async getTaskById(id: number, user: User): Promise<Task> {
@@ -65,13 +83,24 @@ export class TaskRepository extends Repository<Task> {
     task.status = TaskStatus.OPEN;
     task.user = user;
 
-    await task.save();
+    try {
+      await task.save();
 
-    // We are deleting the user object from the task object, not
-    // from the database.
-    delete task.user;
+      // We are deleting the user object from the task object, not
+      // from the database.
+      delete task.user;
 
-    return task;
+      return task;
+    } catch (error) {
+      this.logger.error(
+        `Failed to create a task for user "${
+          user.username
+        }". Data: ${JSON.stringify(createTaskDto)}`,
+        error.stack,
+      );
+
+      throw new InternalServerErrorException();
+    }
   }
 
   async deleteTask(id: number, user: User): Promise<void> {

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { UserRepository } from './user.repository';
 import { JwtService } from '@nestjs/jwt';
@@ -10,6 +10,8 @@ export class AuthService {
     private userRepository: UserRepository,
     private jwtService: JwtService,
   ) {}
+
+  private logger = new Logger('AuthService');
 
   signUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
     return this.userRepository.signUp(authCredentialsDto);
@@ -31,6 +33,10 @@ export class AuthService {
     // But don't add sensitive information
     const payload: JwtPayload = { username: username };
     const accessToken = await this.jwtService.signAsync(payload);
+
+    this.logger.debug(
+      `Generated JWT Token with payload ${JSON.stringify(payload)}`,
+    );
 
     // Return an object with the access token
     // Promise<{ accessToken: string }> - We are returning a Promise of type Object with key
