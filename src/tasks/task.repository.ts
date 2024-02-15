@@ -45,8 +45,8 @@ export class TaskRepository extends Repository<Task> {
     return tasks;
   }
 
-  async getTaskById(id: number): Promise<Task> {
-    const task: Task = await this.findOneBy({ id: id });
+  async getTaskById(id: number, user: User): Promise<Task> {
+    const task: Task = await this.findOne({ where: { id, userId: user.id } });
 
     if (!task) {
       throw new NotFoundException(`Task with ID ${id} not found`);
@@ -94,8 +94,12 @@ export class TaskRepository extends Repository<Task> {
     }
   }
 
-  async updateTaskStatus(id: number, status: TaskStatus): Promise<Task> {
-    const task: Task = await this.getTaskById(id);
+  async updateTaskStatus(
+    id: number,
+    status: TaskStatus,
+    user: User,
+  ): Promise<Task> {
+    const task: Task = await this.getTaskById(id, user);
 
     task.status = status;
 
