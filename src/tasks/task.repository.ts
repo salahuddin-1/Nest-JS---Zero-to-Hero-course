@@ -74,7 +74,7 @@ export class TaskRepository extends Repository<Task> {
     return task;
   }
 
-  async deleteTask(id: number): Promise<void> {
+  async deleteTask(id: number, user: User): Promise<void> {
     // const task: Task = await this.findOneBy({ id: id });
 
     // if (!task) {
@@ -85,7 +85,10 @@ export class TaskRepository extends Repository<Task> {
 
     // await this.remove(task);
 
-    const deletedTask: DeleteResult = await this.delete(id);
+    const deletedTask: DeleteResult = await this.delete({
+      id: id,
+      userId: user.id,
+    });
 
     if (deletedTask.affected === 0) {
       throw new NotFoundException(
