@@ -10,11 +10,11 @@ import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PassportModule.register({ defaultStrategy: 'jwt' }), // defaultStrategy: 'jwt' - Type of the token i.e. JWT
     JwtModule.register({
-      secret: 'topSecret51',
+      secret: 'topSecret51', // secret - Should not be hardcoded in a real application nor shared publicly
       signOptions: {
-        expiresIn: 3600,
+        expiresIn: 3600, // expiresIn - The token will expire in 3600 seconds (1 hour)
       },
     }),
     TypeOrmModule.forFeature([User]),

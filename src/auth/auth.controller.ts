@@ -30,8 +30,11 @@ export class AuthController {
     return this.authService.signIn(authCredentialsDto);
   }
 
+  // In UseGuards, we call the AuthGuard and pass the name of the strategy we want to use
+  // Here we are using the 'my_jwt_strategy' strategy, defined in jwt.strategy.ts
+  // Nest JS looks for the strategy with the name 'my_jwt_strategy' and uses it
   @Post('/test')
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard('my_jwt_strategy'))
   test(@GetUser() user: User) {
     console.log(user);
   }
