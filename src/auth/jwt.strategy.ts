@@ -4,6 +4,7 @@ import { Strategy, ExtractJwt } from 'passport-jwt';
 import { JwtPayload } from './jwt-payload.interface';
 import { UserRepository } from './user.repository';
 import { User } from './user.entity';
+import * as config from 'config';
 
 // Here, "my_jwt_strategy" is the name of the strategy
 @Injectable()
@@ -14,7 +15,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'my_jwt_strategy') {
       // and we are specifying that the JWT will be in the Authorization header
       // with the Bearer scheme, e.g. Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: 'topSecret51',
+      secretOrKey: process.env.JWT_SECRET || config.get('jwt.secret'),
     });
   }
 

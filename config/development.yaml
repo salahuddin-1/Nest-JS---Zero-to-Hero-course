@@ -1,0 +1,10 @@
+# Whatever configuration is defined here will be merged with the default configuration.
+
+db:
+  host: localhost
+  username: postgres
+  password: postgres
+  synchronize: true
+
+jwt:
+  secret: topSecret51
